@@ -23,17 +23,19 @@ class Pokemon extends Controller
         $api = config('app.api') . 'pokemon';
     
         try {
-            $response = Http::get($api);
+            $response = Http::timeout(1)->get($api);
             if($response->getStatusCode() == 200){
-            return json_decode($response)->results;
+                Log::debug($response->getStatusCode());
+                return json_decode($response)->results;
             }else{
                 $json['status'] = $response->getStatusCode();
                 $json['message'] = "Sorry something went wrong.";
-
-                return $json;
             }
         } catch (\Exception $e) {
+            $json['status'] = 302;
+            return $json;
             Log::error($e->getMessage());
+            
         }
     }
 

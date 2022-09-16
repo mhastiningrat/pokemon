@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Route::view('/offline',"offline.offline")->name('offline');
 Route::get('/', [ Pokemon::class, 'pokemonPage']);
 Route::get('/pokemon/list',[Pokemon::class, 'getList']);
 Route::get('/pokemon/list/detail/{url}',[Pokemon::class, 'getListDetail']);

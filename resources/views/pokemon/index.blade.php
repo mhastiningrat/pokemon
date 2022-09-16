@@ -19,16 +19,17 @@
     <script src="{{ asset('plugins/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('plugins/select2/js/select2.full.min.js') }}"></script>
-
-
 </head>
+<script>
+    var api = "{{ config('app.api') }}";
+</script>
 <body>
     <div class="container-fluid w-50 bg-light">
         <button class=" btn btn-prev position-fixed top-50 start-0 translate-middle-y rounded-circle">
-            <span class="material-symbols-outlined"> chevron_left</span>
+            <span class="material-symbols-outlined fs-1"> chevron_left</span>
         </button>
         <button class=" btn btn-next position-fixed top-50 end-0 translate-middle-y rounded-circle">
-            <span class="material-symbols-outlined"> chevron_right</span>
+            <span class="material-symbols-outlined fs-1"> chevron_right</span>
         </button>
         <div class="row">
                 <div class="col-md-6 my-5 d-flex justify-content-between ">
@@ -60,6 +61,9 @@
             <div class="col-md-12">
                 <div class="row d-flex justify-content-center content" id="pokemon-list">
 
+                </div>
+                <div class="spinner-grow" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
         </div>

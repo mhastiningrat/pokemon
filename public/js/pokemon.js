@@ -1,5 +1,6 @@
-var method;
+var method, idLimit = 0;
 $(document).ready(function () {
+
     $('.type').select2({
         theme: 'bootstrap4',
     })
@@ -7,25 +8,31 @@ $(document).ready(function () {
     $('.generation').select2({
         theme: 'bootstrap4',
     })
-    getList('/pokemon/list');
 
+    getList('/pokemon/list');
     function getList(url) { //Function for get all pokemon url
         $.ajax({
             url: url,
             method: 'GET',
             success: function (result) {
-                for (var i = 0; i < result.length; i++) {
-                    if (result[i].pokemon == undefined) {
-                        if (result[i].url.includes("pokemon-species")) {
-                            getListBySpecies(result[i].url)
-                        } else {
-                            getDetail(result[i].url)
-                        }
+                if (result.status == 302) {
+                    window.location.href = "/offline"
+                } else {
+                    for (var i = 0; i < result.length; i++) {
+                        if (result[i].pokemon == undefined) {
+                            if (result[i].url.includes("pokemon-species")) {
+                                getListBySpecies(result[i].url)
+                            } else {
 
-                    } else {
-                        getDetail(result[i].pokemon.url)
+                                getDetail(result[i].url)
+                            }
+
+                        } else {
+                            getDetail(result[i].pokemon.url)
+                        }
                     }
                 }
+
             }
         })
     }
@@ -42,11 +49,27 @@ $(document).ready(function () {
         })
     }
 
+    function getListByLimit(url) { //function for get pokemon url which is use to get pokemon list by filtering generation
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function (result) {
+                for (var i = 0; i < result.results.length; i++) {
+                    getDetail(result.results[i].url)
+                }
+            }
+        })
+    }
+
     function getDetail(url) { //function for get data detail pokemon 
         $.ajax({
             url: url,
             method: 'GET',
             dataType: 'JSON',
+            beforeSend: function () {
+                $('.spinner-grow').removeClass('d-none');
+                $('.spinner-grow').addClass('d-inline-block');
+            },
             success: function (result) {
                 let types = "";
                 for (var i = 0; i < result.types.length; i++) {
@@ -101,8 +124,10 @@ $(document).ready(function () {
                     )
                     $('.card').removeClass('bg-info')
                 }
+            }, complete: function () {
+                $('.spinner-grow').removeClass('d-inline-block');
+                $('.spinner-grow').addClass('d-none');
             }
-
         })
     }
 
@@ -196,7 +221,7 @@ $(document).ready(function () {
             $('#pokemon-compare').html("");
             method = "compare";
             for (let i = 0; i < $('.bg-info').length; i++) {
-                getDetail("https://pokeapi.co/api/v2/pokemon/" + $('.bg-info')[i].id)
+                getDetail(api + "pokemon/" + $('.bg-info')[i].id)
             }
             $('#modal-compare').modal('show')
         } else {
@@ -215,18 +240,35 @@ $(document).ready(function () {
 
         } else {
             $('.detail-type').html("")
-            getMoreDetail("https://pokeapi.co/api/v2/pokemon/" + this.id)
+            getMoreDetail(api + "pokemon/" + this.id)
         }
     });
 
     $('.next').on('click', function () { //get next data detail of pokemon at detail page
         let id = Number(this.id) + 1
         $('.detail-type').html("")
-        getMoreDetail("https://pokeapi.co/api/v2/pokemon/" + id)
+        getMoreDetail(api + "pokemon/" + id)
     })
     $('.prev').on('click', function () { //get prev data detail of pokemon at detail page
         let id = Number(this.id) - 1
         $('.detail-type').html("")
-        getMoreDetail("https://pokeapi.co/api/v2/pokemon/" + id)
+        getMoreDetail(api + "pokemon/" + id)
     })
+
+    $('.btn-next').on('click', function () { //get next data of pokemon at landing page
+        idLimit += 20
+        $('.content').html("")
+        getListByLimit(api + "pokemon?offset=" + idLimit + "&limit=20")
+    })
+    $('.btn-prev').on('click', function () { //get prev data of pokemon at landing page
+        if (idLimit == 0) {
+            $(this).attr('disabled')
+        } else {
+            idLimit -= 20
+            $('.content').html("")
+            getListByLimit(api + "pokemon?offset=" + idLimit + "&limit=20")
+        }
+    })
+
+
 })
